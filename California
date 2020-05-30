@@ -1,0 +1,7 @@
+import pandas as pd
+CAhousing_df=pd.read_csv(r'C:\Users\morva\Documents\Python Scripts\Github Housing\California Housing.csv')
+
+CAhousing_df.columns
+#Index(['longitude', 'latitude', 'housing_median_age', 'total_rooms', 'total_bedrooms', 'population', 'households', 'median_income',
+       'median_house_value', 'ocean_proximity'],  dtype='object')
+   
