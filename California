@@ -42,13 +42,70 @@ CAhousing_df.head(5)
 
 ReducedCAhousing_df=CAhousing_df.dropna()
 
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-df=CAhousing_df.copy()
-normalized_df=(CAhousing_df-CAhousing_df.mean())/CAhousing_df.std()
+normalized_df=(ReducedCAhousing_df-ReducedCAhousing_df.mean())/ReducedCAhousing_df.std()
 scaler=StandardScaler()
-normalized_d=pd.DataFrame(scaler.fit_transform(CAhousing_df),index=CAhousing_df.index,columns=CAhousing_df.columns)
+normalized_df=pd.DataFrame(scaler.fit_transform(ReducedCAhousing_df),index=ReducedCAhousing_df.index,columns=ReducedCAhousing_df.columns)
+normalized_df=(ReducedCAhousing_df-ReducedCAhousing_df.min())/(ReducedCAhousing_df.max()-ReducedCAhousing_df.min())
+normalized_df
 
-#converting numpy array into data frame
-normalized_df=(CAhousing_df-CAhousing_df.min())/(CAhousing_df.max()-CAhousing_df.min())
+excludecolumns=('median_house_value')
+
+predictors=[s for s in ReducedCAhousing_df.columns if s not in excludecolumns]
+predictors
+#['longitude',
+ 'latitude',
+ 'housing_median_age',
+ 'total_rooms',
+ 'total_bedrooms',
+ 'population',
+ 'households',
+ 'median_income',
+ 'ocean_proximity_INLAND',
+ 'ocean_proximity_ISLAND',
+ 'ocean_proximity_NEAR BAY',
+ 'ocean_proximity_NEAR OCEAN']
+ 
+ outcome='median_house_value'
+ x=ReducedCAhousing_df[predictors]
+y=ReducedCAhousing_df[outcome]
+train_x,valid_x,train_y,valid_y=train_test_split(x,y,test_size=.4,random_state=1)
+model=LinearRegression()
+model.fit(train_x,train_y)
+#LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
+
+train_prediction=model.predict(train_x)
+train_results=pd.DataFrame({'median_house_value':train_y,'predicted':train_prediction,'residuals':train_y-train_prediction})
+train_results.head()
+#median_house_value	predicted	residuals
+16766	264300.0	241999.814590	22300.185410
+1983	155900.0	105751.000497	50148.999503
+8316	300000.0	368399.016944	-68399.016944
+4075	500001.0	417978.854566	82022.145434
+16407	130400.0	143488.801597	-13088.801597
+
+valid_prediction=model.predict(valid_x)
+valid_results=pd.DataFrame({'median_house_value':valid_y,'predicted':valid_prediction,'residuals':valid_y-valid_prediction})
+valid_results.head()
+#median_house_value	predicted	residuals
+6715	360900.0	381575.901392	-20675.901392
+4121	291500.0	280442.284083	11057.715917
+15433	131300.0	156189.944973	-24889.944973
+20272	500001.0	355450.644766	144550.355234
+11843	118800.0	56148.758536	62651.241464
+
+from dmba import regressionSummary
+regressionSummary(train_results.median_house_value, train_results.predicted)
+#regressionSummary(train_results.median_house_value, train_results.predicted)
+
+regressionSummary(valid_results.median_house_value, valid_results.predicted)
+#Regression statistics
+
+                      Mean Error (ME) : 935.4942
+       Root Mean Squared Error (RMSE) : 68932.5443
+            Mean Absolute Error (MAE) : 49831.2047
+          Mean Percentage Error (MPE) : -9.8600
+Mean Absolute Percentage Error (MAPE) : 28.4619
+
+
 
 
